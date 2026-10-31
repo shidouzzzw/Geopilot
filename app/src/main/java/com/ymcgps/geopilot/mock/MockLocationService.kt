@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -115,11 +116,16 @@ class MockLocationService : Service() {
     private fun enterForeground(): Boolean {
         return try {
             createChannel()
+            val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            } else {
+                0
+            }
             ServiceCompat.startForeground(
                 this,
                 NOTIFICATION_ID,
                 buildNotification(),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION,
+                type,
             )
             true
         } catch (e: Exception) {

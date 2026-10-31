@@ -1,21 +1,35 @@
 package com.ymcgps.geopilot
 
 import android.Manifest
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputType
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.view.View
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -26,7 +40,7 @@ import com.ymcgps.geopilot.mock.MockLocationService
 import com.ymcgps.geopilot.mock.SimulationState
 import com.ymcgps.geopilot.ui.SetupGuideActivity
 import com.ymcgps.geopilot.util.CoordinateParser
-import com.ymcgps.geopilot.util.applySystemInsetsAsPadding
+import com.ymcgps.geopilot.util.applyInsetsAsPadding
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -42,17 +56,24 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
 
     private lateinit var root: View
     private lateinit var map: MapView
+    private lateinit var topBar: MaterialCardView
+    private lateinit var sheetCard: MaterialCardView
+    private lateinit var statusPill: TextView
+    private lateinit var sheetHeader: LinearLayout
+    private lateinit var expandIcon: ImageView
+    private lateinit var collapsibleBody: LinearLayout
     private lateinit var latLayout: TextInputLayout
     private lateinit var lonLayout: TextInputLayout
     private lateinit var latInput: TextInputEditText
     private lateinit var lonInput: TextInputEditText
-    private lateinit var statusText: TextView
     private lateinit var toggleButton: MaterialButton
     private lateinit var updateButton: MaterialButton
     private lateinit var favorites: FavoriteStore
 
     private var marker: Marker? = null
     private var pendingStart: GeoPoint? = null
+    private var expanded = true
+    private var lastRunning: Boolean? = null
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -72,20 +93,28 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
         setContentView(R.layout.activity_main)
 
         root = findViewById(R.id.root)
-        root.applySystemInsetsAsPadding()
         map = findViewById(R.id.map)
+        topBar = findViewById(R.id.topBar)
+        sheetCard = findViewById(R.id.sheetCard)
+        statusPill = findViewById(R.id.statusPill)
+        sheetHeader = findViewById(R.id.sheetHeader)
+        expandIcon = findViewById(R.id.expandIcon)
+        collapsibleBody = findViewById(R.id.collapsibleBody)
         latLayout = findViewById(R.id.latLayout)
         lonLayout = findViewById(R.id.lonLayout)
         latInput = findViewById(R.id.latInput)
         lonInput = findViewById(R.id.lonInput)
-        statusText = findViewById(R.id.statusText)
         toggleButton = findViewById(R.id.toggleButton)
         updateButton = findViewById(R.id.updateButton)
         favorites = FavoriteStore(this)
 
+        topBar.applyInsetsAsPadding(top = true, horizontal = true)
+        sheetCard.applyInsetsAsPadding(bottom = true, imeAware = true)
+
         setupMap()
 
         findViewById<View>(R.id.showButton).setOnClickListener {
+            hideKeyboard()
             readInput()?.let { selectPoint(it, move = true) }
         }
         findViewById<View>(R.id.addFavoriteButton).setOnClickListener { addFavorite() }
@@ -99,6 +128,10 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
                 requestStart(point)
             }
         }
+        sheetHeader.setOnClickListener { setExpanded(!expanded, animate = true) }
+
+        setExpanded(true, animate = false)
+        playEntranceAnimation()
 
         if (savedInstanceState != null) {
             val lat = savedInstanceState.getDouble(STATE_LAT, Double.NaN)
@@ -163,16 +196,17 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
         map.setMultiTouchControls(true)
         map.minZoomLevel = 3.0
         map.maxZoomLevel = 19.0
-        map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
+        map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
         map.controller.setZoom(5.5)
         map.controller.setCenter(GeoPoint(39.0, 35.0))
 
-        // "© OpenStreetMap contributors" atfı
+        // "(c) OpenStreetMap contributors" atfı
         map.overlays.add(CopyrightOverlay(this))
         map.overlays.add(
             MapEventsOverlay(object : MapEventsReceiver {
                 override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
                     if (p == null) return false
+                    hideKeyboard()
                     selectPoint(p, move = false)
                     return true
                 }
@@ -189,7 +223,7 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
         lonLayout.error = null
         showMarker(point)
         if (move) {
-            map.controller.setZoom(maxOf(map.zoomLevelDouble, 15.0))
+            if (map.zoomLevelDouble < 14.0) map.controller.setZoom(14.0)
             map.controller.animateTo(point)
         }
     }
@@ -203,6 +237,11 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
         }
         current.position = point
         map.invalidate()
+        // Seçim geri bildirimi: rozet hafifçe büyüyüp yerine oturur.
+        statusPill.animate().scaleX(1.03f).scaleY(1.03f).setDuration(90)
+            .withEndAction {
+                statusPill.animate().scaleX(1f).scaleY(1f).setDuration(140).start()
+            }.start()
     }
 
     // ---------------------------------------------------------- Giriş alanları
@@ -232,6 +271,13 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
             CoordinateParser.Problem.LAT_RANGE -> latLayout.error = getString(R.string.err_lat_range)
             CoordinateParser.Problem.LON_RANGE -> lonLayout.error = getString(R.string.err_lon_range)
         }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        currentFocus?.let { imm.hideSoftInputFromWindow(it.windowToken, 0) }
+        latInput.clearFocus()
+        lonInput.clearFocus()
     }
 
     // --------------------------------------------------------------- Favoriler
@@ -274,7 +320,12 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
             return
         }
         val labels = list.map {
-            "${it.name}\n${CoordinateParser.format(it.latitude)}, ${CoordinateParser.format(it.longitude)}"
+            getString(
+                R.string.favorite_item,
+                it.name,
+                CoordinateParser.format(it.latitude),
+                CoordinateParser.format(it.longitude),
+            )
         }.toTypedArray()
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.favorites_title)
@@ -303,6 +354,7 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
     // -------------------------------------------------------------- Simülasyon
 
     private fun onToggleClicked() {
+        hideKeyboard()
         if (SimulationState.running) {
             stopSimulationService()
             return
@@ -367,25 +419,103 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
         }
     }
 
-    // --------------------------------------------------------------------- UI
+    // -------------------------------------------------------------- Görsel dil
+
+    private fun playEntranceAnimation() {
+        topBar.alpha = 0f
+        topBar.translationY = -40f
+        topBar.animate().alpha(1f).translationY(0f)
+            .setDuration(260).setInterpolator(DecelerateInterpolator()).start()
+
+        sheetCard.alpha = 0f
+        sheetCard.translationY = 90f
+        sheetCard.animate().alpha(1f).translationY(0f)
+            .setStartDelay(70).setDuration(320).setInterpolator(DecelerateInterpolator()).start()
+    }
+
+    private fun setExpanded(expand: Boolean, animate: Boolean) {
+        if (expanded == expand && animate) return
+        expanded = expand
+        if (animate) {
+            TransitionManager.beginDelayedTransition(sheetCard, AutoTransition().apply { duration = 240L })
+        }
+        collapsibleBody.visibility = if (expand) View.VISIBLE else View.GONE
+        if (animate) {
+            expandIcon.animate().rotation(if (expand) 180f else 0f).setDuration(240).start()
+        } else {
+            expandIcon.rotation = if (expand) 180f else 0f
+        }
+        sheetHeader.contentDescription =
+            getString(if (expand) R.string.panel_collapse else R.string.panel_expand)
+    }
 
     private fun refreshUi() {
-        if (SimulationState.running) {
-            statusText.text = getString(
+        val running = SimulationState.running
+        if (running) {
+            statusPill.text = getString(
                 R.string.status_running,
                 CoordinateParser.format(SimulationState.latitude),
                 CoordinateParser.format(SimulationState.longitude),
             )
-            statusText.setBackgroundColor(ContextCompat.getColor(this, R.color.green_container))
+            animateBackgroundTint(statusPill, R.color.status_running_bg)
+            statusPill.setTextColor(ContextCompat.getColor(this, R.color.status_running_text))
             toggleButton.setText(R.string.btn_stop)
-            updateButton.visibility = View.VISIBLE
+            toggleButton.setIconResource(R.drawable.ic_stop)
+            animateBackgroundTint(toggleButton, R.color.danger)
+            toggleButton.setTextColor(ContextCompat.getColor(this, R.color.danger_on))
+            showUpdateButton(true)
         } else {
-            statusText.setText(R.string.status_idle)
-            statusText.setBackgroundColor(ContextCompat.getColor(this, R.color.status_idle_bg))
+            statusPill.setText(R.string.status_idle)
+            animateBackgroundTint(statusPill, R.color.status_idle_bg)
+            statusPill.setTextColor(ContextCompat.getColor(this, R.color.status_idle_text))
             toggleButton.setText(R.string.btn_start)
-            updateButton.visibility = View.GONE
+            toggleButton.setIconResource(R.drawable.ic_play)
+            animateBackgroundTint(toggleButton, R.color.brand_primary)
+            toggleButton.setTextColor(ContextCompat.getColor(this, R.color.brand_on_primary))
+            showUpdateButton(false)
+        }
+        if (lastRunning != running) {
+            lastRunning = running
+            statusPill.animate().cancel()
+            statusPill.scaleX = 0.92f
+            statusPill.scaleY = 0.92f
+            statusPill.animate().scaleX(1f).scaleY(1f)
+                .setDuration(260).setInterpolator(OvershootInterpolator()).start()
         }
         SimulationState.consumeError()?.let { showError(it) }
+    }
+
+    private fun animateBackgroundTint(view: View, @ColorRes colorRes: Int) {
+        val target = ContextCompat.getColor(this, colorRes)
+        val current = ViewCompat.getBackgroundTintList(view)?.defaultColor ?: target
+        if (current == target) return
+        ValueAnimator.ofObject(ArgbEvaluator(), current, target).apply {
+            duration = 260
+            addUpdateListener { animation ->
+                ViewCompat.setBackgroundTintList(
+                    view,
+                    ColorStateList.valueOf(animation.animatedValue as Int),
+                )
+            }
+            start()
+        }
+    }
+
+    private fun showUpdateButton(show: Boolean) {
+        if (show) {
+            if (updateButton.visibility == View.VISIBLE) return
+            updateButton.animate().cancel()
+            updateButton.alpha = 0f
+            updateButton.visibility = View.VISIBLE
+            updateButton.animate().alpha(1f).setDuration(180).start()
+        } else {
+            if (updateButton.visibility != View.VISIBLE) return
+            updateButton.animate().cancel()
+            updateButton.animate().alpha(0f).setDuration(140).withEndAction {
+                updateButton.visibility = View.GONE
+                updateButton.alpha = 1f
+            }.start()
+        }
     }
 
     private fun showError(message: String) {
@@ -408,6 +538,6 @@ class MainActivity : AppCompatActivity(), SimulationState.Listener {
     private companion object {
         const val STATE_LAT = "state_lat"
         const val STATE_LON = "state_lon"
-        const val USER_AGENT = "GeoPilot/0.1.0 (com.ymcgps.geopilot; acik kaynak konum test uygulamasi)"
+        const val USER_AGENT = "erkGPS/0.2.0 (com.ymcgps.geopilot; acik kaynak konum test uygulamasi)"
     }
 }

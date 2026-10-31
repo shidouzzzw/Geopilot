@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.ymcgps.geopilot.R
-import com.ymcgps.geopilot.util.applySystemInsetsAsPadding
+import com.ymcgps.geopilot.util.applyInsetsAsPadding
 
 class SetupGuideActivity : AppCompatActivity() {
 
@@ -17,7 +17,13 @@ class SetupGuideActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_setup_guide)
-        findViewById<View>(R.id.root).applySystemInsetsAsPadding()
+
+        val scroll = findViewById<View>(R.id.setupScroll)
+        scroll.applyInsetsAsPadding(top = true, horizontal = true)
+        findViewById<View>(R.id.setupActions).applyInsetsAsPadding(bottom = true, horizontal = true)
+        scroll.alpha = 0f
+        scroll.translationY = 24f
+        scroll.animate().alpha(1f).translationY(0f).setDuration(240).start()
 
         findViewById<View>(R.id.openDevOptionsButton).setOnClickListener { openDeveloperOptions() }
         findViewById<View>(R.id.closeButton).setOnClickListener { finish() }
