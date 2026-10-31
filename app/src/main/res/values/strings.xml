@@ -51,7 +51,7 @@
     <string name="permission_denied">Konum izni verilmedi. Simülasyonu başlatmak için bu izin gerekli.</string>
 
     <string name="error_title">Simülasyon başlatılamadı</string>
-    <string name="error_not_mock_app">erkGPS şu anda sahte konum uygulaması olarak seçili değil. Ayarlar > Geliştirici seçenekleri > “Sahte konum uygulamasını seç” bölümünden erkGPS'i seçin.</string>
+    <string name="error_not_mock_app">erkGPS şu anda sahte konum uygulaması olarak seçili değil. Ayarlar > Geliştirici seçenekleri > “Sahte konum uygulamasını seç” bölümünden erkGPS’i seçin.</string>
     <string name="error_generic">Simülasyon başlatılamadı: %1$s</string>
     <string name="error_push">Konum gönderilirken hata oluştu: %1$s</string>
     <string name="error_invalid_coords">Geçersiz koordinat.</string>
@@ -65,7 +65,7 @@
     <string name="notif_stop">Durdur</string>
 
     <string name="setup_title">Kurulum adımları</string>
-    <string name="setup_steps">1. Geliştirici seçeneklerini etkinleştirin: Ayarlar > Telefon hakkında bölümünde “Yapı numarası” satırına 7 kez dokunun.\n\n2. Ayarlar > Sistem > Geliştirici seçenekleri bölümünü açın (menü adı üreticiye göre değişebilir).\n\n3. “Sahte konum uygulamasını seç” seçeneğine dokunup erkGPS'i seçin.\n\n4. erkGPS'e dönün; istenen konum ve bildirim izinlerini verin.\n\n5. Haritadan bir nokta seçin veya enlem/boylam girin, ardından “Simülasyonu başlat”a dokunun.\n\n6. İşiniz bitince “Simülasyonu durdur”a dokunun ya da bildirimdeki “Durdur” düğmesini kullanın.</string>
-    <string name="setup_notes">Bilmeniz gerekenler\n\n• Root gerekmez; yalnızca Android'in resmî sahte konum özelliği kullanılır.\n• Sahte konum, sistem tarafından “sahte” olarak işaretlenir. erkGPS bunu gizlemeye veya başka uygulamaların algılamasını atlatmaya çalışmaz.\n• Bazı uygulamalar sahte konumu reddedebilir; bu beklenen bir durumdur.\n• Sonuçlar cihaza ve Android sürümüne göre değişebilir.\n• Yalnızca kendi cihazınızda, test ve geliştirme amacıyla kullanın.</string>
+    <string name="setup_steps">1. Geliştirici seçeneklerini etkinleştirin: Ayarlar > Telefon hakkında bölümünde “Yapı numarası” satırına 7 kez dokunun.\n\n2. Ayarlar > Sistem > Geliştirici seçenekleri bölümünü açın (menü adı üreticiye göre değişebilir).\n\n3. “Sahte konum uygulamasını seç” seçeneğine dokunup erkGPS’i seçin.\n\n4. erkGPS’e dönün; istenen konum ve bildirim izinlerini verin.\n\n5. Haritadan bir nokta seçin veya enlem/boylam girin, ardından “Simülasyonu başlat”a dokunun.\n\n6. İşiniz bitince “Simülasyonu durdur”a dokunun ya da bildirimdeki “Durdur” düğmesini kullanın.</string>
+    <string name="setup_notes">Bilmeniz gerekenler\n\n• Root gerekmez; yalnızca Android’in resmî sahte konum özelliği kullanılır.\n• Sahte konum, sistem tarafından “sahte” olarak işaretlenir. erkGPS bunu gizlemeye veya başka uygulamaların algılamasını atlatmaya çalışmaz.\n• Bazı uygulamalar sahte konumu reddedebilir; bu beklenen bir durumdur.\n• Sonuçlar cihaza ve Android sürümüne göre değişebilir.\n• Yalnızca kendi cihazınızda, test ve geliştirme amacıyla kullanın.</string>
     <string name="setup_open_dev">Geliştirici seçeneklerini aç</string>
 </resources>
