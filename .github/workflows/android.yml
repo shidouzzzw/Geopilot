@@ -27,6 +27,6 @@ jobs:
       - name: APK'yı yükle
         uses: actions/upload-artifact@v4
         with:
-          name: geopilot-debug-apk
+          name: erkgps-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error

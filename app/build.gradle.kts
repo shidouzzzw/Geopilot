@@ -12,8 +12,8 @@ android {
         // Android 8.0: uyarlanabilir simge, bildirim kanalları ve modern konum API'leri için yeterli taban.
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
     buildTypes {

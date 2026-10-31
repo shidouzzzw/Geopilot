@@ -1,10 +1,14 @@
 package com.ymcgps.geopilot.mock
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
 import android.location.provider.ProviderProperties
+import android.os.Build
 import android.os.SystemClock
+import androidx.annotation.RequiresApi
 import com.ymcgps.geopilot.R
 
 /**
@@ -97,9 +101,16 @@ class MockLocationEngine(private val context: Context) {
         active.clear()
     }
 
-    @Suppress("DEPRECATION")
     private fun addProvider(name: String) {
-        // ProviderProperties sabitleri derleme zamanında satır içine alınır (API 26'da da güvenlidir).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            addProviderModern(name)
+        } else {
+            addProviderLegacy(name)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun addProviderModern(name: String) {
         locationManager.addTestProvider(
             name,
             false, // requiresNetwork
@@ -111,6 +122,24 @@ class MockLocationEngine(private val context: Context) {
             true,  // supportsBearing
             ProviderProperties.POWER_USAGE_LOW,
             ProviderProperties.ACCURACY_FINE,
+        )
+    }
+
+    // Android 12 öncesi: Criteria sabitleri ProviderProperties ile aynı değerleri taşır (1/1).
+    @Suppress("DEPRECATION")
+    @SuppressLint("WrongConstant")
+    private fun addProviderLegacy(name: String) {
+        locationManager.addTestProvider(
+            name,
+            false, // requiresNetwork
+            false, // requiresSatellite
+            false, // requiresCell
+            false, // hasMonetaryCost
+            true,  // supportsAltitude
+            true,  // supportsSpeed
+            true,  // supportsBearing
+            Criteria.POWER_LOW,
+            Criteria.ACCURACY_FINE,
         )
     }
 }

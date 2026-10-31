@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Sürüm numarası (v öneki olmadan, örn. 0.1.0)'
+        description: 'Sürüm numarası (v öneki olmadan, örn. 0.2.0)'
         required: true
-        default: '0.1.0'
+        default: '0.2.0'
 
 jobs:
   release:
@@ -36,7 +36,7 @@ jobs:
             TAG="${GITHUB_REF_NAME}"
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "app=GeoPilot-${TAG#v}-debug.apk" >> "$GITHUB_OUTPUT"
+          echo "app=erkGPS-${TAG#v}-debug.apk" >> "$GITHUB_OUTPUT"
 
       - name: Lint, birim testleri ve debug APK
         run: gradle lintDebug testDebugUnitTest assembleDebug --stacktrace
@@ -50,9 +50,9 @@ jobs:
       - name: Release notunu hazırla
         run: |
           {
-            echo "GeoPilot ${{ steps.tag.outputs.tag }} — debug anahtarıyla imzalanmış APK."
+            echo "erkGPS ${{ steps.tag.outputs.tag }} — debug anahtarıyla imzalanmış APK."
             echo
-            echo "**Kurulum:** APK'yı indirip kurun, ardından **Ayarlar > Geliştirici seçenekleri > Sahte konum uygulamasını seç** kısmından GeoPilot'u seçin. Aksi halde uygulama konum sağlayıcısı oluşturamaz."
+            echo "**Kurulum:** APK'yı indirip kurun, ardından **Ayarlar > Geliştirici seçenekleri > Sahte konum uygulamasını seç** kısmından erkGPS'i seçin. Aksi halde uygulama konum sağlayıcısı oluşturamaz."
             echo
             echo "Sağlama toplamı:"
             echo '```'
@@ -65,7 +65,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: GeoPilot ${{ steps.tag.outputs.tag }}
+          name: erkGPS ${{ steps.tag.outputs.tag }}
           body_path: release-notes.md
           files: |
             ${{ steps.tag.outputs.app }}

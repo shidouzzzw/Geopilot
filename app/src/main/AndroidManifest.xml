@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GeoPilot"
+        android:theme="@style/Theme.ErkGps"
         android:usesCleartextTraffic="false">
 
         <activity
@@ -34,7 +34,8 @@
 
         <activity
             android:name=".ui.SetupGuideActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <service
             android:name=".mock.MockLocationService"
