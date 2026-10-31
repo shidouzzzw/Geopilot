@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="green_primary">#2E7D32</color>
+    <color name="green_dark">#1B5E20</color>
+    <color name="green_container">#E8F5E9</color>
+    <color name="status_idle_bg">#F1F4F1</color>
+    <color name="text_secondary">#5F6B5F</color>
+</resources>
