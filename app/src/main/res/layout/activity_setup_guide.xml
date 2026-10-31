@@ -1,69 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/setupRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical">
+    android:background="@color/surface">
 
     <ScrollView
+        android:id="@+id/setupScroll"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/setup_title"
-                android:textColor="@color/green_dark"
-                android:textSize="24sp"
+                android:textColor="@color/text_primary"
+                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:lineSpacingMultiplier="1.15"
-                android:text="@string/setup_steps"
-                android:textColor="#222222"
-                android:textSize="16sp" />
+                android:layout_marginTop="4dp"
+                android:text="@string/brand_tagline"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
 
-            <TextView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@color/green_container"
-                android:lineSpacingMultiplier="1.15"
-                android:padding="14dp"
-                android:text="@string/setup_notes"
-                android:textColor="@color/green_dark"
-                android:textSize="14sp" />
+                android:layout_marginTop="18dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.2"
+                    android:padding="18dp"
+                    android:text="@string/setup_steps"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/brand_container"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.2"
+                    android:padding="18dp"
+                    android:text="@string/setup_notes"
+                    android:textColor="@color/brand_on_container"
+                    android:textSize="14sp" />
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 
     <LinearLayout
+        android:id="@+id/setupActions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/surface_card"
+        android:elevation="8dp"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openDevOptionsButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/setup_open_dev" />
+            android:layout_height="52dp"
+            android:text="@string/setup_open_dev"
+            app:cornerRadius="16dp"
+            app:icon="@drawable/ic_tune"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/closeButton"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="@string/close" />
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>
