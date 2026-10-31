@@ -1,0 +1,75 @@
+name: Release APK
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Sürüm numarası (v öneki olmadan, örn. 0.1.0)'
+        required: true
+        default: '0.1.0'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Sürüm etiketini belirle
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="v${{ inputs.version }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "app=GeoPilot-${TAG#v}-debug.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Lint, birim testleri ve debug APK
+        run: gradle lintDebug testDebugUnitTest assembleDebug --stacktrace
+
+      - name: APK'yı yeniden adlandır ve sağlama toplamını al
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk "${{ steps.tag.outputs.app }}"
+          sha256sum "${{ steps.tag.outputs.app }}" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Release notunu hazırla
+        run: |
+          {
+            echo "GeoPilot ${{ steps.tag.outputs.tag }} — debug anahtarıyla imzalanmış APK."
+            echo
+            echo "**Kurulum:** APK'yı indirip kurun, ardından **Ayarlar > Geliştirici seçenekleri > Sahte konum uygulamasını seç** kısmından GeoPilot'u seçin. Aksi halde uygulama konum sağlayıcısı oluşturamaz."
+            echo
+            echo "Sağlama toplamı:"
+            echo '```'
+            cat SHA256SUMS.txt
+            echo '```'
+          } > release-notes.md
+          cat release-notes.md
+
+      - name: Release'i oluştur ve APK'yı ekle
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: GeoPilot ${{ steps.tag.outputs.tag }}
+          body_path: release-notes.md
+          files: |
+            ${{ steps.tag.outputs.app }}
+            SHA256SUMS.txt
+          draft: false
+          prerelease: false
+          make_latest: true
