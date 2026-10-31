@@ -3,6 +3,16 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+// CI kalıcı imzalama anahtarını secret olarak verir; anahtar yoksa normal debug anahtarı kullanılır.
+// Aynı anahtar kullanılmazsa Android yeni APK'yı güncelleme olarak kabul etmez (INSTALL_FAILED_UPDATE_INCOMPATIBLE).
+val stableKeystore: File? = System.getenv("ERKGPS_KEYSTORE")
+    ?.takeIf { it.isNotBlank() }
+    ?.let { file(it) }
+    ?.takeIf { it.exists() }
+val stableStorePassword: String = System.getenv("ERKGPS_STORE_PASSWORD").orEmpty()
+val stableKeyAlias: String = System.getenv("ERKGPS_KEY_ALIAS").orEmpty().ifEmpty { "erkgps" }
+val stableKeyPassword: String = System.getenv("ERKGPS_KEY_PASSWORD").orEmpty().ifEmpty { stableStorePassword }
+
 android {
     namespace = "com.ymcgps.geopilot"
     compileSdk = 35
@@ -12,11 +22,26 @@ android {
         // Android 8.0: uyarlanabilir simge, bildirim kanalları ve modern konum API'leri için yeterli taban.
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
+    }
+
+    signingConfigs {
+        if (stableKeystore != null) {
+            create("stable") {
+                storeFile = stableKeystore
+                storePassword = stableStorePassword
+                keyAlias = stableKeyAlias
+                keyPassword = stableKeyPassword
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            // Sabit anahtar varsa debug derlemesi de onunla imzalanır; sürümler birbirinin üzerine kurulabilir.
+            signingConfigs.findByName("stable")?.let { signingConfig = it }
+        }
         release {
             isMinifyEnabled = false
         }

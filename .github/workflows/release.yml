@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Sürüm numarası (v öneki olmadan, örn. 0.2.0)'
+        description: 'Sürüm numarası (v öneki olmadan, örn. 0.3.0)'
         required: true
-        default: '0.2.0'
+        default: '0.3.0'
 
 jobs:
   release:
@@ -38,8 +38,34 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "app=erkGPS-${TAG#v}-debug.apk" >> "$GITHUB_OUTPUT"
 
+      # Sabit anahtar secret olarak tanımlıysa her sürüm aynı sertifikayla imzalanır,
+      # böylece yeni APK öncekinin üzerine kurulabilir. Tanımlı değilse debug anahtarı kullanılır.
+      - name: İmzalama anahtarını hazırla
+        env:
+          KEYSTORE_B64: ${{ secrets.ERKGPS_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.ERKGPS_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ERKGPS_KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/erkgps.keystore"
+            {
+              echo "ERKGPS_KEYSTORE=$RUNNER_TEMP/erkgps.keystore"
+              echo "ERKGPS_STORE_PASSWORD=$STORE_PASS"
+              echo "ERKGPS_KEY_PASSWORD=$STORE_PASS"
+              echo "ERKGPS_KEY_ALIAS=$KEY_ALIAS"
+            } >> "$GITHUB_ENV"
+            echo "Sabit imzalama anahtarı hazır."
+          else
+            echo "Sabit anahtar tanımlı değil; debug anahtarıyla imzalanacak." >&2
+          fi
+
       - name: Lint, birim testleri ve debug APK
         run: gradle lintDebug testDebugUnitTest assembleDebug --stacktrace
+
+      - name: İmzayı doğrula
+        run: |
+          BUILD_TOOLS="$(ls -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"/build-tools/* | sort -V | tail -1)"
+          "$BUILD_TOOLS/apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk | head -3
 
       - name: APK'yı yeniden adlandır ve sağlama toplamını al
         run: |
@@ -50,9 +76,11 @@ jobs:
       - name: Release notunu hazırla
         run: |
           {
-            echo "erkGPS ${{ steps.tag.outputs.tag }} — debug anahtarıyla imzalanmış APK."
+            echo "erkGPS ${{ steps.tag.outputs.tag }} — debug yapısı, kalıcı erkGPS anahtarıyla imzalı APK."
             echo
             echo "**Kurulum:** APK'yı indirip kurun, ardından **Ayarlar > Geliştirici seçenekleri > Sahte konum uygulamasını seç** kısmından erkGPS'i seçin. Aksi halde uygulama konum sağlayıcısı oluşturamaz."
+            echo
+            echo "**Güncelleme notu:** v0.3.0'dan itibaren tüm APK'lar aynı anahtarla imzalanır. Daha eski bir sürüm (v0.1.0/v0.2.0) kuruluysa bu sürümü kurmadan önce uygulamayı bir kez kaldırın; bundan sonraki sürümler doğrudan güncelleme olarak kurulur."
             echo
             echo "Sağlama toplamı:"
             echo '```'
