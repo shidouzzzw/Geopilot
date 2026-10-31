@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GeoPilot</string>
+    <string name="app_name">erkGPS</string>
+    <string name="brand_tagline">Konum simülatörü</string>
 
     <string name="status_idle">Simülasyon kapalı</string>
-    <string name="status_running">Simülasyon açık: %1$s, %2$s</string>
+    <string name="status_running">Açık · %1$s, %2$s</string>
+
+    <string name="panel_title">Kontrol paneli</string>
+    <string name="panel_expand">Paneli genişlet</string>
+    <string name="panel_collapse">Paneli daralt</string>
     <string name="map_hint">Haritaya dokunarak bir nokta seçin ya da koordinat girin.</string>
     <string name="latitude">Enlem</string>
     <string name="longitude">Boylam</string>
     <string name="selected_marker">Seçilen konum</string>
 
-    <string name="btn_show_on_map">Haritada göster</string>
-    <string name="btn_add_favorite">Favoriye ekle</string>
-    <string name="btn_favorites">Favoriler</string>
+    <string name="btn_show_short">Göster</string>
+    <string name="btn_favorite_short">Favori</string>
+    <string name="btn_list_short">Liste</string>
     <string name="btn_start">Simülasyonu başlat</string>
     <string name="btn_stop">Simülasyonu durdur</string>
     <string name="btn_update">Simüle konumu güncelle</string>
@@ -26,7 +31,7 @@
     <string name="err_lon_range">Boylam -180 ile 180 arasında olmalı.</string>
 
     <string name="favorites_title">Favori konumlar</string>
-    <string name="favorites_empty">Henüz favori konum eklemediniz.</string>
+    <string name="favorites_empty">Henüz favori konum eklemediniz. Bir nokta seçip “Favori” düğmesini kullanın.</string>
     <string name="favorite_name_title">Favori adı</string>
     <string name="favorite_name_hint">Örn. Ev, Ofis</string>
     <string name="favorite_default_name">Konum %1$d</string>
@@ -34,6 +39,7 @@
     <string name="favorite_deleted">Favori silindi.</string>
     <string name="favorite_select">Haritada seç</string>
     <string name="favorite_delete">Sil</string>
+    <string name="favorite_item">%1$s\n%2$s, %3$s</string>
 
     <string name="save">Kaydet</string>
     <string name="cancel">İptal</string>
@@ -45,7 +51,7 @@
     <string name="permission_denied">Konum izni verilmedi. Simülasyonu başlatmak için bu izin gerekli.</string>
 
     <string name="error_title">Simülasyon başlatılamadı</string>
-    <string name="error_not_mock_app">GeoPilot şu anda sahte konum uygulaması olarak seçili değil. Ayarlar > Geliştirici seçenekleri > “Sahte konum uygulamasını seç” bölümünden GeoPilot’u seçin.</string>
+    <string name="error_not_mock_app">erkGPS şu anda sahte konum uygulaması olarak seçili değil. Ayarlar > Geliştirici seçenekleri > “Sahte konum uygulamasını seç” bölümünden erkGPS'i seçin.</string>
     <string name="error_generic">Simülasyon başlatılamadı: %1$s</string>
     <string name="error_push">Konum gönderilirken hata oluştu: %1$s</string>
     <string name="error_invalid_coords">Geçersiz koordinat.</string>
@@ -54,12 +60,12 @@
 
     <string name="notif_channel_name">Konum simülasyonu</string>
     <string name="notif_channel_desc">Simülasyon çalışırken gösterilen bildirim</string>
-    <string name="notif_title">Konum simülasyonu açık</string>
+    <string name="notif_title">erkGPS konum simülasyonu açık</string>
     <string name="notif_text">%1$s, %2$s</string>
     <string name="notif_stop">Durdur</string>
 
     <string name="setup_title">Kurulum adımları</string>
-    <string name="setup_steps">1. Geliştirici seçeneklerini etkinleştirin: Ayarlar > Telefon hakkında bölümünde “Yapı numarası” satırına 7 kez dokunun.\n\n2. Ayarlar > Sistem > Geliştirici seçenekleri bölümünü açın (menü adı üreticiye göre değişebilir).\n\n3. “Sahte konum uygulamasını seç” seçeneğine dokunup GeoPilot’u seçin.\n\n4. GeoPilot’a dönün; istenen konum ve bildirim izinlerini verin.\n\n5. Haritadan bir nokta seçin veya enlem/boylam girin, ardından “Simülasyonu başlat”a dokunun.\n\n6. İşiniz bitince “Simülasyonu durdur”a dokunun ya da bildirimdeki “Durdur” düğmesini kullanın.</string>
-    <string name="setup_notes">Bilmeniz gerekenler\n\n• Root gerekmez; yalnızca Android’in resmî sahte konum özelliği kullanılır.\n• Sahte konum, sistem tarafından “sahte” olarak işaretlenir. GeoPilot bunu gizlemeye veya başka uygulamaların algılamasını atlatmaya çalışmaz.\n• Bazı uygulamalar sahte konumu reddedebilir; bu beklenen bir durumdur.\n• Sonuçlar cihaza ve Android sürümüne göre değişebilir.\n• Yalnızca kendi cihazınızda, test ve geliştirme amacıyla kullanın.</string>
+    <string name="setup_steps">1. Geliştirici seçeneklerini etkinleştirin: Ayarlar > Telefon hakkında bölümünde “Yapı numarası” satırına 7 kez dokunun.\n\n2. Ayarlar > Sistem > Geliştirici seçenekleri bölümünü açın (menü adı üreticiye göre değişebilir).\n\n3. “Sahte konum uygulamasını seç” seçeneğine dokunup erkGPS'i seçin.\n\n4. erkGPS'e dönün; istenen konum ve bildirim izinlerini verin.\n\n5. Haritadan bir nokta seçin veya enlem/boylam girin, ardından “Simülasyonu başlat”a dokunun.\n\n6. İşiniz bitince “Simülasyonu durdur”a dokunun ya da bildirimdeki “Durdur” düğmesini kullanın.</string>
+    <string name="setup_notes">Bilmeniz gerekenler\n\n• Root gerekmez; yalnızca Android'in resmî sahte konum özelliği kullanılır.\n• Sahte konum, sistem tarafından “sahte” olarak işaretlenir. erkGPS bunu gizlemeye veya başka uygulamaların algılamasını atlatmaya çalışmaz.\n• Bazı uygulamalar sahte konumu reddedebilir; bu beklenen bir durumdur.\n• Sonuçlar cihaza ve Android sürümüne göre değişebilir.\n• Yalnızca kendi cihazınızda, test ve geliştirme amacıyla kullanın.</string>
     <string name="setup_open_dev">Geliştirici seçeneklerini aç</string>
 </resources>

@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#FFFFFF</color>
-    <color name="green_primary">#2E7D32</color>
-    <color name="green_dark">#1B5E20</color>
-    <color name="green_container">#E8F5E9</color>
-    <color name="status_idle_bg">#F1F4F1</color>
-    <color name="text_secondary">#5F6B5F</color>
+    <!-- Marka: derin petrol yeşili -->
+    <color name="brand_primary">#0F766E</color>
+    <color name="brand_on_primary">#FFFFFF</color>
+    <color name="brand_container">#CCFBF1</color>
+    <color name="brand_on_container">#134E4A</color>
+
+    <color name="surface">#F7FAF9</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="surface_variant">#EDF3F1</color>
+    <color name="outline">#CBD9D5</color>
+    <color name="text_primary">#10201D</color>
+    <color name="text_secondary">#5A6B66</color>
+
+    <color name="status_idle_bg">#E9F0EE</color>
+    <color name="status_idle_text">#3F5350</color>
+    <color name="status_running_bg">#DCFCE7</color>
+    <color name="status_running_text">#166534</color>
+    <color name="danger">#B3261E</color>
+    <color name="danger_on">#FFFFFF</color>
+    <color name="map_backdrop">#E7EDEB</color>
 </resources>
